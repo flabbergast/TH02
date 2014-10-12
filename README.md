@@ -1,3 +1,26 @@
+TH02 Library with software I2C
+------------------------------
+
+Originally by Charles-Henri Hallard, modified by flabbergast to use
+[SoftI2CMaster](http://playground.arduino.cc/Main/SoftwareI2CLibrary)
+library. This is the only software I2C library that worked with TH02 for
+me (I tried [jeelib](https://github.com/jcw/jeelib) and I2cMaster
+library by William Greiman). TH02 seems to be quite picky.
+
+I (flabbergast) also wanted it to work on [JeeNode
+Micro](http://jeelabs.net/projects/hardware/wiki/JeeNode_Micro), which
+means on an attiny84, running on 8MHz, with a radio on SPI. I tried
+[TinyWireM](https://github.com/adafruit/TinyWireM), i.e. hardware I2C on
+the same (USI) pins as SPI, and I couldn't make it work (hanged on
+initialisation of I2C).
+
+So finally, this version works on my JeeNode Micro, and general
+atmega328p based Arduino variants, on any pins.
+
+## Cheers!
+
+Original README by Charles-Henri Hallard follows:
+
 TH02 Library
 ------------
 By Charles-Henri Hallard
