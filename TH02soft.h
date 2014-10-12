@@ -18,8 +18,8 @@
 // All text above must be included in any redistribution.
 //
 // **********************************************************************************
-#ifndef TH02_H
-#define TH02_H
+#ifndef TH02soft_H
+#define TH02soft_H
 
 #include <Arduino.h>            //assumes Arduino IDE v1.0 or greater
 

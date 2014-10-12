@@ -18,8 +18,8 @@
 // All text above must be included in any redistribution.
 //
 // **********************************************************************************
-#include <TH02.h>
-#include <I2C.h>
+#include <TH02soft.h>
+#include <SoftI2CMaster.h>
 #include <math.h>
 
 int32_t temperature = TH02_UNINITIALIZED_TEMP;  // Last measured temperature (for linearization)
@@ -35,17 +35,14 @@ Comments:
 ====================================================================== */
 uint8_t TH02::getId(void)
 {
-  // Read ID register
-  if ( I2c.read(TH02_I2C_ADDR, TH02_ID, 1) == 0 )
-  {
-    // Got one byte ?
-    if (I2c.available() == 1)
-    {
-      // sound we have the correct data
-      return (I2c.receive());
-    }
-  }
-
+  uint8_t result=0;
+  if(i2c_start( (TH02_I2C_ADDR<<1) | I2C_WRITE )) // announce writing
+    if(i2c_write( TH02_ID )) // write register value
+      if(i2c_rep_start( (TH02_I2C_ADDR<<1) | I2C_READ )) { // announce reading
+        result = i2c_read(true); // read 1 byte
+        i2c_stop(); // finish transaction
+        return result;
+      }
   // not successfull 
   return 0;
 }
@@ -60,17 +57,14 @@ Comments:
 ====================================================================== */
 uint8_t TH02::getStatus(void)
 {
-  // Read Status register
-  if ( I2c.read(TH02_I2C_ADDR, TH02_STATUS, 1) == 0 )
-  {
-    // Got one byte ?
-    if (I2c.available() == 1)
-    {
-      // sound we have the correct data
-      return (I2c.receive());
-    }
-  }
-    
+  uint8_t result=0;
+  if(i2c_start( (TH02_I2C_ADDR<<1) | I2C_WRITE )) // announce writing
+    if(i2c_write( TH02_STATUS )) // write register value
+      if(i2c_rep_start( (TH02_I2C_ADDR<<1) | I2C_READ )) { // announce reading
+        result = i2c_read(true); // read 1 byte
+        i2c_stop(); // finish transaction
+        return result;
+      }
   // had a problem fake all bit at 1 (conversion in progress)
   return TH02_I2C_ERR;
 }
@@ -100,19 +94,15 @@ Comments:
 ====================================================================== */
 uint8_t TH02::getConfig(void)
 {
-  // Read Status register
-  if ( I2c.read(TH02_I2C_ADDR, TH02_CONFIG, 1) == 0 )
-  {
-    // Got one byte ?
-    if (I2c.available() == 1)
-    {
-      // sound we have the correct data
-      return (I2c.receive());
-    }
-  }
-    
-  // had a problem fake a config all bit to 1
-  // should never happen to have config at 0xFF
+  uint8_t result=0;
+  if(i2c_start( (TH02_I2C_ADDR<<1) | I2C_WRITE )) // announce writing
+    if(i2c_write( TH02_CONFIG )) // write register value
+      if(i2c_rep_start( (TH02_I2C_ADDR<<1) | I2C_READ )) { // announce reading
+        result = i2c_read(true); // read 1 byte
+        i2c_stop(); // finish transaction
+        return result;
+      }
+  // had a problem fake all bit at 1 (conversion in progress)
   return TH02_I2C_ERR;
 }
 
@@ -125,11 +115,13 @@ Comments:
 ====================================================================== */
 bool TH02::setConfig(uint8_t config)
 {
-  // Write the value to the configuration register
-  if ( I2c.write( (uint8_t) TH02_I2C_ADDR, (uint8_t) TH02_CONFIG, (uint8_t) config ) == 0 )
-    return true;
-  else
-    return false;
+  if(i2c_start( (TH02_I2C_ADDR<<1) | I2C_WRITE )) // announce writing
+    if(i2c_write( TH02_CONFIG )) // write register value
+      if(i2c_write( config )) { // write the value
+        i2c_stop(); // finish transaction
+        return true;
+      }
+  return false;
 }
 
 /* ======================================================================
@@ -232,16 +224,13 @@ int16_t TH02::getConversionValue(void)
   uint8_t  config;
  
   // Read 2 bytes adc data MSB and LSB from TH02
-  if ( I2c.read(TH02_I2C_ADDR, TH02_DATAh, 2) == 0 )
-  {
-    // we got 2 bytes ?
-    if (I2c.available() == 2)
-    {
-      // convert number
-      result = I2c.receive() << 8;
-      result |= I2c.receive();
-    }
-  }
+  if(i2c_start( (TH02_I2C_ADDR<<1) | I2C_WRITE )) // announce writing
+    if(i2c_write( TH02_DATAh )) // write register value
+      if(i2c_rep_start( (TH02_I2C_ADDR<<1) | I2C_READ )) { // announce reading
+        result = i2c_read(false) << 8; // read first byte
+        result |= i2c_read(true); // read last byte
+        i2c_stop(); // finish transaction
+      }
 
   // Get configuration to know what was asked last time
   config = getConfig();
