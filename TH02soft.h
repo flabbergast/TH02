@@ -76,9 +76,13 @@ class TH02 {
     bool    setConfig(uint8_t config);
     bool    startTempConv(bool fastmode = false, bool heater = false);
     bool    startRHConv(bool fastmode = false, bool heater = false);
+#if defined(__AVR_ATtiny84__)
+    int16_t getConversionValue_nomath(void); // this one is for attiny cores
+#else
     int16_t roundInt(float value);
     int16_t getConversionValue(void);
     int16_t getConpensatedRH(bool round);
+#endif
     int32_t getLastRawRH(void);
     int32_t getLastRawTemp(void);
 

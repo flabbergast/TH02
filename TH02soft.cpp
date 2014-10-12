@@ -544,7 +544,9 @@ uint8_t i2c_read(bool last)
 
 
 #include <TH02soft.h>
+#if not defined(__AVR_ATtiny84__)
 #include <math.h>
+#endif
 
 int32_t temperature = TH02_UNINITIALIZED_TEMP;  // Last measured temperature (for linearization)
 int32_t rh = TH02_UNINITIALIZED_RH;             // Last measured RH
@@ -725,6 +727,82 @@ uint8_t TH02::waitEndConversion(void)
   return (time_out);
 }
 
+#if defined(__AVR_ATtiny84__)
+/* ======================================================================
+Function: getConversionValue_nomath
+Purpose : return the last converted value to int * 100 to have 2 digit prec.  
+Input   : float value
+Output  : value rounded but multiplied per 100 or TH02_UNDEFINED_VALUE on err
+Comments: - temperature and rh raw values (*100) are stored for raw purpose
+          - the configuration register is checked to see if last conv was
+            a temperature or humidity conversion
+          - use this on attiny cores
+====================================================================== */
+int16_t TH02::getConversionValue_nomath(void)
+{
+  int32_t result=0 ;
+  uint8_t  config;
+ 
+  // Read 2 bytes adc data MSB and LSB from TH02
+  if(i2c_start( (TH02_I2C_ADDR<<1) | I2C_WRITE )) // announce writing
+    if(i2c_write( TH02_DATAh )) // write register value
+      if(i2c_rep_start( (TH02_I2C_ADDR<<1) | I2C_READ )) { // announce reading
+        result = i2c_read(false) << 8; // read first byte
+        result |= i2c_read(true); // read last byte
+        i2c_stop(); // finish transaction
+      }
+
+  // Get configuration to know what was asked last time
+  config = getConfig();
+  
+  // Error reading config ?
+  if (config == TH02_I2C_ERR)
+  {
+    return TH02_UNDEFINED_VALUE;
+  }
+  
+  // last conversion was temperature ?
+  else  if( config & TH02_CONFIG_TEMP)
+  {
+    result >>= 2;  // remove 2 unused LSB bits
+    result *= 100; // multiply per 100 to have int value with 2 decimal
+    result /= 32;  // now apply datasheet formula
+    if(result >= 5000)
+    {
+      result -= 5000;
+    }
+    else
+    {
+      result -= 5000;
+      result = -result;
+    }
+    
+    // now result contain temperature * 100
+    // so 2134 is 21.34 C
+    
+    // Save raw value 
+    temperature = result;
+  }
+  // it was RH conversion
+  else
+  {
+    result >>= 4;  // remove 4 unused LSB bits
+    result *= 100; // multiply per 100 to have int value with 2 decimal
+    result /= 16;  // now apply datasheet formula
+    result -= 2400;
+
+    // now result contain humidity * 100
+    // so 4567 is 45.67 % RH
+    rh = result;
+  }
+
+  // returns 100 * value ("2 digit precision")
+  // but the point is to avoid dividing and floats completely
+  return result;
+}
+
+#else
+
 /* ======================================================================
 Function: roundInt
 Purpose : round a float value to int  
@@ -752,6 +830,7 @@ Output  : value rounded but multiplied per 10 or TH02_UNDEFINED_VALUE on err
 Comments: - temperature and rh raw values (*100) are stored for raw purpose
           - the configuration register is checked to see if last conv was
             a temperature or humidity conversion
+          - included for compatibility with TH02 lib
 ====================================================================== */
 int16_t TH02::getConversionValue(void)
 {
@@ -811,7 +890,7 @@ int16_t TH02::getConversionValue(void)
     rh = result;
   }
 
-  // remember result value is multiplied by 10 to avoid float calculation later
+  // remember result value is multiplied by 100 to avoid float calculation later
   // so humidity of 45.6% is 456 and temp of 21.3 C is 213
   return (roundInt(result/10.0f));
 }
@@ -868,6 +947,8 @@ int16_t TH02::getConpensatedRH(bool round)
     }
   }
 }
+
+#endif
 
 /* ======================================================================
 Function: getLastRawRH
