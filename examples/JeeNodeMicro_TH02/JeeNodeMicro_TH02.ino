@@ -7,18 +7,22 @@
  * (c) 2014 flabbergast
  *
  * Comments:
- *  - the current code is running out of memory (I think), so can't compute compensated
- *    humidity on the attiny, the compensation needs to be done at the receiving end.
- *  - couldn't use Sleepy for sleep (same reason, memory)
  *  - if you want to use this for a real sensor, you should also power the TH02 sensor
  *    a pin and power it up/down as needed, instead of having it powered continuously.
  *    According to the datasheet, the device doesn't have a sleep mode, and consumes
  *    150uA of power in standby (too much). Also, note that it can guzzle up to 40mA
  *    of power for 5ms on each powerup and shutdown...
- *  - I would guess that one can save memory by getting rid of the C++ Object stuff and
- *    coding the I2C transactions directly here. That's the next step.
  *
  * Warning: You'll need to edit the TH02soft.cpp to change the pins!
+ * Warning: the resulting size of this sketch is about 6400 bytes. So with Arduino 1.0.5,
+ *          you might get an error with something like "relocation truncated to fit:
+ *          R_AVR_13_PCREL against symbol `exit' defined". This is apparently due to
+ *          having old avr-gcc: https://code.google.com/p/arduino-tiny/issues/detail?id=58
+ *          [which is triggered if the code is >= 4kB.]
+ *          So either update the avr-gcc in Arduino, or fiddle with the code (use _nomath,
+ *          don't compute compensatedRH, don't include math.h, and like.) I managed to get
+ *          it under 4kB with tricks like that, see commit
+ *          ced130d978200841f12d2a394d2591cfc6580288 .
  *
  */
 
@@ -36,6 +40,7 @@ TH02 sensor;
 typedef struct {                            // RFM12B RF payload datastructure
       int16_t temp;
       int16_t rh;
+      int16_t rh_comp;
 } Payload;
 Payload payload;
 
@@ -77,14 +82,12 @@ void loop()
   payload.rh = sensor.getConversionValue_nomath();
   
   // couldn't get the math code working on attiny84 (I think a problem with memory size)
-//  payload.rh_comp = sensor.getCompensatedRH(false);
+  payload.rh_comp = sensor.getCompensatedRH(false);
 
   // send the reading
   rf12_sendNow(0, &payload, sizeof payload);
   rf12_sendWait(2);
   
   // running out of memory again: can't use Sleepy
-//  Sleepy::loseSomeTime(20000); // JeeLabs power save function: enter low power mode for x seconds (valid range 16-65000 ms)
-
-  delay(20000);
+  Sleepy::loseSomeTime(20000); // JeeLabs power save function: enter low power mode for x seconds (valid range 16-65000 ms)
 }

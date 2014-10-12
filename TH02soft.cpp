@@ -727,7 +727,6 @@ uint8_t TH02::waitEndConversion(void)
   return (time_out);
 }
 
-#if defined(__AVR_ATtiny84__)
 /* ======================================================================
 Function: getConversionValue_nomath
 Purpose : return the last converted value to int * 100 to have 2 digit prec.  
@@ -800,8 +799,6 @@ int16_t TH02::getConversionValue_nomath(void)
   // but the point is to avoid dividing and floats completely
   return result;
 }
-
-#else
 
 /* ======================================================================
 Function: roundInt
@@ -947,8 +944,6 @@ int16_t TH02::getCompensatedRH(bool round)
     }
   }
 }
-
-#endif
 
 /* ======================================================================
 Function: getLastRawRH
