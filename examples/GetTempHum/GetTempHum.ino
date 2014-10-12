@@ -19,24 +19,24 @@
 //
 // **********************************************************************************
 
-#include <arduino.h>
-#include <TH02.h>
-#include <I2C.h>
+// Slightly modified for TH02soft library by flabbergast
+// 2014-10-12
 
-// Instantiate TH02 sensor
+// Unfortunately, we need to define the I2C pins and parameters in
+// the library itself - so please edit libraries/TH02soft/TH02soft.cpp
+// The default pins are A4 & A5, just like the usual TWI.
+
+#include <TH02soft.h>
 TH02 sensor;
 
 void setup()
 {
   uint8_t devID;
-  
-  I2c.begin();
-  I2c.pullup(true); // Enable I2C Internal pullup
-  I2c.setSpeed(1);  // Set I2C to 400Khz 
-   
+
+  sensor.init();
+
   Serial.begin(115200);
   Serial.println("\r\nTH02 Demo");
-  
   // TH02 ID is 4 MSB
   devID = sensor.getId() >> 4;
 
