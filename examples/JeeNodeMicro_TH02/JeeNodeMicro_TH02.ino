@@ -17,6 +17,9 @@
  *    of power for 5ms on each powerup and shutdown...
  *  - I would guess that one can save memory by getting rid of the C++ Object stuff and
  *    coding the I2C transactions directly here. That's the next step.
+ *
+ * Warning: You'll need to edit the TH02soft.cpp to change the pins!
+ *
  */
 
 #define RF69_COMPAT 1
@@ -25,14 +28,6 @@
 #define RF_FREQ RF12_868MHZ
 
 #include <JeeLib.h>
-
-//#define SCL_PIN 3
-//#define SCL_PORT PORTA
-//#define SDA_PIN 2
-//#define SDA_PORT PORTA
-//#define I2C_TIMEOUT 1000
-//#define I2C_SLOWMODE 1
-//#include <SoftI2CMaster.h>
 
 #include <TH02soft.h>
 TH02 sensor;
@@ -48,16 +43,12 @@ Payload payload;
 ISR(WDT_vect) { Sleepy::watchdogEvent(); }
 
 void setup() {
-//    cli();
-//    CLKPR = bit(CLKPCE);
-//    CLKPR = 0; // div 1, i.e. speed up to 8 MHz
-//    sei();
 
-    // power up the radio on JMv3
-    bitSet(DDRB, 0);
-    bitClear(PORTB, 0);
+  // power up the radio on JMv3
+  bitSet(DDRB, 0);
+  bitClear(PORTB, 0);
 
-    rf12_initialize(RF_NODE_ID, RF_FREQ, RF_GROUP);
+  rf12_initialize(RF_NODE_ID, RF_FREQ, RF_GROUP);
 
   // send an echo that we're starting  
   payload.temp = 1;
