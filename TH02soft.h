@@ -18,6 +18,7 @@
 // All text above must be included in any redistribution.
 //
 // **********************************************************************************
+
 #ifndef TH02soft_H
 #define TH02soft_H
 
@@ -64,6 +65,8 @@
 
 class TH02 { 
   public:
+
+    void    init(void);
 
     uint8_t getId(void);
     uint8_t getStatus(void);
