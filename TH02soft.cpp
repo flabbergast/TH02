@@ -896,13 +896,13 @@ int16_t TH02::getConversionValue(void)
 }
 
 /* ======================================================================
-Function: getConpensatedRH
+Function: getCompensatedRH
 Purpose : return the compensated calulated humidity  
 Input   : true if we want to round value to 1 digit precision, else 2
 Output  : the compensed RH value (rounded or not)
 Comments: 
 ====================================================================== */
-int16_t TH02::getConpensatedRH(bool round)
+int16_t TH02::getCompensatedRH(bool round)
 {
   float rhvalue  ;
   float rhlinear ;

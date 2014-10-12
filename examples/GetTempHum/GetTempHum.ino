@@ -92,9 +92,9 @@ void loop()
   Serial.print(F("Raw Humidity = "));
   Serial.print(sensor.getLastRawRH()/100.0);
   Serial.print(F("%  => Compensated "));
-  Serial.print(sensor.getConpensatedRH(false)/100.0);
+  Serial.print(sensor.getCompensatedRH(false)/100.0);
   Serial.print(F("%  Rounded  "));
-  Serial.print(sensor.getConpensatedRH(true)/10.0);
+  Serial.print(sensor.getCompensatedRH(true)/10.0);
   Serial.println(F("%"));
   
   Serial.println(F("Now waiting 10 sec before next conversion."));

@@ -81,7 +81,7 @@ class TH02 {
 #else
     int16_t roundInt(float value);
     int16_t getConversionValue(void);
-    int16_t getConpensatedRH(bool round);
+    int16_t getCompensatedRH(bool round);
 #endif
     int32_t getLastRawRH(void);
     int32_t getLastRawTemp(void);

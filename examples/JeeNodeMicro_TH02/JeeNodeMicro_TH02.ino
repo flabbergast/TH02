@@ -86,7 +86,7 @@ void loop()
   payload.rh = sensor.getConversionValue_nomath();
   
   // couldn't get the math code working on attiny84 (I think a problem with memory size)
-//  payload.rh_comp = sensor.getConpensatedRH(false);
+//  payload.rh_comp = sensor.getCompensatedRH(false);
 
   // send the reading
   rf12_sendNow(0, &payload, sizeof payload);

@@ -21,7 +21,7 @@ startTempConv KEYWORD2
 startRHConv KEYWORD2
 roundInt KEYWORD2
 getConversionValue  KEYWORD2
-getConpensatedRH  KEYWORD2
+getCompensatedRH  KEYWORD2
 getLastRawRH  KEYWORD2
 getLastRawTemp  KEYWORD2
 
