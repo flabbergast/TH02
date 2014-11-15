@@ -19,10 +19,10 @@
 //
 // **********************************************************************************
 
-#define SCL_PIN 5
-#define SCL_PORT PORTC
-#define SDA_PIN 4
-#define SDA_PORT PORTC
+#define SCL_PIN 1
+#define SCL_PORT PORTA
+#define SDA_PIN 0
+#define SDA_PORT PORTA
 #define I2C_TIMEOUT 1000
 
 // **********************************************************************************

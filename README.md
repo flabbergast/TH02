@@ -17,6 +17,9 @@ initialisation of I2C).
 So finally, this version works on my JeeNode Micro, and general
 atmega328p based Arduino variants, on any pins.
 
+Note that the pins need to be set in #defines within the `TH02soft.cpp`
+file (unfortunately)!
+
 ## Cheers!
 
 Original README by Charles-Henri Hallard follows:
